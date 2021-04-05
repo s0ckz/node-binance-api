@@ -366,9 +366,16 @@ let api = function Binance( options = {} ) {
             symbol: symbol,
             side: side,
             type: 'LIMIT',
-            quantity: quantity
+            // quantity: quantity
         };
         if ( typeof flags.type !== 'undefined' ) opt.type = flags.type;
+
+        if ( side == 'BUY' && opt.type.includes( 'MARKET' ) ) {
+            opt.quoteOrderQty = quantity;
+        } else {
+            opt.quantity = quantity;
+        }
+
         if ( opt.type.includes( 'LIMIT' ) ) {
             opt.price = price;
             if ( opt.type !== 'LIMIT_MAKER' ) {
@@ -400,6 +407,7 @@ let api = function Binance( options = {} ) {
             opt.stopPrice = flags.stopPrice;
             if ( opt.type === 'LIMIT' ) throw Error( 'stopPrice: Must set "type" to one of the following: STOP_LOSS, STOP_LOSS_LIMIT, TAKE_PROFIT, TAKE_PROFIT_LIMIT' );
         }
+
         signedRequest( base + endpoint, opt, ( error, response ) => {
             if ( !response ) {
                 if ( callback ) callback( error, response );
